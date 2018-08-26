@@ -2,9 +2,14 @@ var mongoose = require("mongoose");
 
 var Schema = mongoose.Schema;
 
-var ArticleSchema = new Schema({
+var HeadlineSchema = new Schema({
     
-    title: {
+    headline: {
+        type: String,
+        required: true
+    },
+    
+    summary: {
         type: String,
         required: true
     },
@@ -21,6 +26,6 @@ var ArticleSchema = new Schema({
 });
 
 
-var Article = mongoose.model("Article", ArticleSchema);
+var Headline = mongoose.model("Headline", HeadlineSchema);
 
-module.exports = Article;
+module.exports = Headline;
