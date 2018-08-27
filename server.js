@@ -1,5 +1,6 @@
 var express = require("express");
 var bodyParser = require("body-parser");
+var mongojs = require("mongojs");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 var axios = require("axios");
@@ -25,9 +26,18 @@ mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true
 });
 
+var databaseUrl = "newsdb";
+var collections = ["scrapedNews"];
+
+var db = mongojs(databaseUrl, collections);
+db.on("error", function (error) {
+    console.log("Database Error:", error);
+});
+
+
 app.get("/all", function (req, res) {
 
-    db.newsdb.find({}, function (err, data) {
+    db.scrapedNews.find({}, function (err, data) {
 
         if (err) {
             console.log(err);
@@ -44,11 +54,11 @@ app.get("/scrape", function (req, res) {
     axios.get("https://www.nytimes.com/section/us").then(function (response) {
        
         var $ = cheerio.load(response.data);
-        $("headline h2").each(function (i, element) {
+        $(".headline").each(function (i, element) {
             
         var result = {};
 
-            result.article = $(this)
+            result.headline = $(this)
                 .children("a")
                 .text();
             result.summary = $(this)
@@ -59,11 +69,11 @@ app.get("/scrape", function (req, res) {
                 .attr("href");
 
     db.News.create(result)
-            .then(function (newsdb) {
+        .then(function (newsdb) {
                  
-                 console.log(newsdb);
-            })
-            .catch(function (err) {
+             console.log(newsdb);
+        })
+        .catch(function (err) {
                   
                 return res.json(err);
             });
